@@ -43,12 +43,12 @@ class Spy(object):
 
     def __init__(self, mock):
         self.__dict__["_%s__mock" % self.__class__.__name__] = mock
-        self.__dict__["_%s__wrapped" % self.__class__.__name__] = self.__mock._mock_wraps
 
     def __getattr__(self, item):
         attr = getattr(self.__mock, item)
 
         mock_wraps = attr._mock_wraps
+        wrapped = self.__mock._mock_wraps
         if mock_wraps is not None:
             # Is the wrapped value present?
             if isinstance(mock_wraps, types.MethodType):
@@ -58,16 +58,15 @@ class Spy(object):
                     # If the method belongs to a Mock and method is not class method
                     # Rebind mock method to use this Spy as self
                     # This will allow self.method() to go back into the spy and into the Mock to be tracked
-                    attr._mock_wraps = types.MethodType(attr._mock_wraps.__func__, self)
+                    attr._mock_wraps = types.MethodType(mock_wraps.__func__, self)
             else:
                 # This attribute is not a method
-                if not isinstance(mock_wraps, types.FunctionType) and hasattr(self.__wrapped, item):
+                if not isinstance(mock_wraps, types.FunctionType) and hasattr(wrapped, item):
                     # If wrapped is not a function (e.g. static method) and the underlying wrapped
                     # has this attribute then simply return the value of that attribute directly
-                    return getattr(self.__wrapped, item)
+                    return getattr(wrapped, item)
         else:
-            if attr._mock_return_value is DEFAULT and hasattr(self.__wrapped, item) and getattr(self.__wrapped,
-                                                                                                item) is None:
+            if attr._mock_return_value is DEFAULT and hasattr(wrapped, item) and getattr(wrapped, item) is None:
                 # This attribute is not wrapped, and if it doesn't have a return value
                 # and is None then just return None
                 return None
@@ -76,20 +75,22 @@ class Spy(object):
         return attr
 
     def __setattr__(self, key: str, value):
+        mock = self.__mock
         try:
-            attr = getattr(self.__mock, key)
+            attr = getattr(mock, key)
             mock_wraps = attr._mock_wraps
+            wrapped = mock._mock_wraps
             if mock_wraps is None or \
-                    isinstance(mock_wraps, types.MethodType) and mock_wraps.__self__ in (self, self.__wrapped):
+                    isinstance(mock_wraps, types.MethodType) and mock_wraps.__self__ in (self, wrapped):
                 # If attribute is not wrapped or is a method of the wrapped object and method is bound
                 # to Spy or spied mock then delegate to Mock
-                return setattr(self.__mock, key, value)
+                return setattr(mock, key, value)
 
             # Otherwise set the value directly on the object that is wrapped and is spied on
-            setattr(self.__wrapped, key, value)
+            setattr(wrapped, key, value)
         except AttributeError:
             # If Mock doesn't have this attribute delegate to Mock
-            return setattr(self.__mock, key, value)
+            return setattr(mock, key, value)
 
 
 def magic_spy(obj):
