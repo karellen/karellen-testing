@@ -21,7 +21,6 @@ from pybuilder.core import use_plugin, init, Project, Author
 use_plugin("pypi:karellen_pyb_plugin", ">=0.0.1.dev")
 
 name = "karellen-testing"
-default_task = ["analyze", "publish"]
 version = "0.0.1.dev"
 
 url = "https://github.com/karellen/karellen-testing"
@@ -29,8 +28,9 @@ description = "Please visit %s for more information!" % url
 summary = "Karellen Testing Library"
 
 authors = [Author("Karellen, Inc", "supervisor@karellen.co")]
-default_task = ["analyze", "publish"]
 license = "Apache License, Version 2.0"
+
+default_task = ["install_dependencies", "analyze", "publish"]
 
 
 @init
@@ -43,12 +43,10 @@ def set_properties(project: Project):
     project.set_property("integrationtest_coverage_branch_threshold_warn", 0)
     project.set_property("integrationtest_coverage_branch_partial_threshold_warn", 0)
 
-    project.set_property("distutils_classifiers", [
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.5',
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
+    # Distutils
+    project.set_property("distutils_classifiers", project.get_property("distutils_classifiers") + [
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing'])
+
+    project.set_property("pdoc_module_name", "karellen.testing")
