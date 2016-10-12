@@ -1,5 +1,8 @@
 # Karellen Testing Frameworks and Utilities
-Karellen Testing Frameworks and Utilities
+
+[Karellen](https://www.karellen.co/karellen/) Testing Frameworks and Utilities
+
+This project aggregates testing frameworks and utilities for all of the projects under [Karellen](https://www.karellen.co/) umbrella.
 
 ## Mock
 A collection of Mock utilities helping with common tasks

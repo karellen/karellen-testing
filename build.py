@@ -30,7 +30,7 @@ summary = "Karellen Testing Library"
 authors = [Author("Karellen, Inc", "supervisor@karellen.co")]
 license = "Apache License, Version 2.0"
 
-default_task = ["install_dependencies", "analyze", "publish"]
+default_task = ["install_dependencies", "analyze",  "sphinx_generate_documentation", "publish"]
 
 
 @init
